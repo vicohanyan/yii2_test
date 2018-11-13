@@ -45,7 +45,6 @@ class m181113_191257_product_attachment extends Migration
             'product'
         );
 
-        // drops index for column `author_id`
         $this->dropIndex(
             'idx-product-product_id',
             'product'
