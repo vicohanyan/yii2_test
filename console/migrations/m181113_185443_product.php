@@ -7,36 +7,26 @@ use yii\db\Migration;
  */
 class m181113_185443_product extends Migration
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function safeUp()
-    {
-
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function safeDown()
-    {
-        echo "m181113_185443_product cannot be reverted.\n";
-
-        return false;
-    }
-
-    /*
-    // Use up()/down() to run migration code without a transaction.
     public function up()
     {
+        $tableOptions = null;
+        if ($this->db->driverName === 'mysql') {
+            $tableOptions = 'CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE=InnoDB';
+        }
 
+        $this->createTable('{{%product}}', [
+            'id'           => $this->primaryKey(),
+            'product_code' => $this->integer()->defaultValue(0),
+            'name'         => $this->string(),
+            'description'  => $this->text(),
+            'count'        => $this->tinyInteger(),
+            'brand'        => $this->string(),
+            'size'         => $this->integer(),
+        ], $tableOptions);
     }
 
     public function down()
     {
-        echo "m181113_185443_product cannot be reverted.\n";
-
-        return false;
+        $this->dropTable('{{%product}}');
     }
-    */
 }
