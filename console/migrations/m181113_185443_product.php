@@ -22,6 +22,7 @@ class m181113_185443_product extends Migration
             'count'        => $this->tinyInteger(),
             'brand'        => $this->string(),
             'size'         => $this->integer(),
+            'product_id'   => $this->integer(),
         ], $tableOptions);
     }
 
