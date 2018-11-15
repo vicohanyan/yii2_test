@@ -71,7 +71,6 @@ class ProductController extends Controller
     public function actionCreate()
     {
         $model = new Product();
-        $modelAttachment = new ProductAttachment();
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
                 if(!empty($model->attachment)) {
                     $path = 'uploads/';
@@ -83,10 +82,11 @@ class ProductController extends Controller
                     foreach ($model->attachment as $file) {
                         $file->saveAs($path . $file->baseName . '.' . $file->extension);
                         $originFile = $path . $file->baseName . '.' . $file->extension;
-                        Image::thumbnail($originFile, 200, 200)->save($originFile, ['quality' => 100]);
-
-
-
+                        if($file->extension == 'jpg' || $file->extension == 'jpeg' || $file->extension == 'png') {
+                            Image::thumbnail($originFile, 400, 400)->save($originFile, ['quality' => 100]);
+                        }else{
+                            $file->saveAs($path . $file->baseName . '.' . $file->extension);
+                        }
                         $modelAttachment = new ProductAttachment();
                         $modelAttachment->product_id = $model->id;
                         $modelAttachment->attachment = $file->baseName . '.' . $file->extension;
@@ -96,19 +96,6 @@ class ProductController extends Controller
                             $check = false;
                         }
                     }
-//
-//                    $imgPath = Yii::$app->basePath . '/uploads/'; // as an example
-//                    $imgName = Yii::$app->security->generateRandomString();
-//                    $fileExt = '.' . $model->file->extension;
-//
-//                    $originFile = $imgPath . $imgName . $fileExt;
-//                    $thumbnFile = $imgPath . $imgName . '-thumb' . $fileExt;
-//                    Image::thumbnail($originFile, 200, 200)->save($thumbnFile, ['quality' => 80]);
-
-
-
-
-
                 }
                 if($check){
                     return $this->redirect(['view', 'id' => $model->id]);
@@ -151,7 +138,7 @@ class ProductController extends Controller
      */
     public function actionDelete($id)
     {
-        $this->findModel($id)->delete();
+        $model = $this->findModel($id);
 
         return $this->redirect(['index']);
     }

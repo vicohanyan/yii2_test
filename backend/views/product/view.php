@@ -37,7 +37,6 @@ $this->params['breadcrumbs'][] = $this->title;
             'size',
         ],
     ]) ?>
-
     <div class="col-md-12" style="display: flex;justify-content: center;align-items: center;flex-wrap: wrap">
         <?php if(!empty($modelAttachment)):?>
             <?php foreach ($modelAttachment as $file):?>
