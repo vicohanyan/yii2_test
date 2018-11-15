@@ -2,12 +2,15 @@
 
 namespace backend\controllers;
 
+use app\models\ProductAttachment;
+use yii\imagine\Image;
 use Yii;
 use app\models\Product;
 use yii\data\ActiveDataProvider;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use yii\web\UploadedFile;
 
 /**
  * ProductController implements the CRUD actions for Product model.
@@ -52,8 +55,11 @@ class ProductController extends Controller
      */
     public function actionView($id)
     {
+        $modelAttachment = ProductAttachment::find()->where(['product_id'=>$id])->all();
+
         return $this->render('view', [
             'model' => $this->findModel($id),
+            'modelAttachment' => $modelAttachment,
         ]);
     }
 
@@ -65,9 +71,50 @@ class ProductController extends Controller
     public function actionCreate()
     {
         $model = new Product();
-
+        $modelAttachment = new ProductAttachment();
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
+                if(!empty($model->attachment)) {
+                    $path = 'uploads/';
+                    if(!file_exists('uploads/')) {
+                        mkdir($path, 0777, true);
+                    }
+                    $model->attachment = UploadedFile::getInstances($model, 'attachment');
+                    $check = '';
+                    foreach ($model->attachment as $file) {
+                        $file->saveAs($path . $file->baseName . '.' . $file->extension);
+                        $originFile = $path . $file->baseName . '.' . $file->extension;
+                        Image::thumbnail($originFile, 200, 200)->save($originFile, ['quality' => 100]);
+
+
+
+                        $modelAttachment = new ProductAttachment();
+                        $modelAttachment->product_id = $model->id;
+                        $modelAttachment->attachment = $file->baseName . '.' . $file->extension;
+                        if($modelAttachment->validate() && $modelAttachment->save()){
+                            $check = true;
+                        }else{
+                            $check = false;
+                        }
+                    }
+//
+//                    $imgPath = Yii::$app->basePath . '/uploads/'; // as an example
+//                    $imgName = Yii::$app->security->generateRandomString();
+//                    $fileExt = '.' . $model->file->extension;
+//
+//                    $originFile = $imgPath . $imgName . $fileExt;
+//                    $thumbnFile = $imgPath . $imgName . '-thumb' . $fileExt;
+//                    Image::thumbnail($originFile, 200, 200)->save($thumbnFile, ['quality' => 80]);
+
+
+
+
+
+                }
+                if($check){
+                    return $this->redirect(['view', 'id' => $model->id]);
+                }else{
+                    throw new NotFoundHttpException('File Not Uploaded');
+                }
         }
 
         return $this->render('create', [

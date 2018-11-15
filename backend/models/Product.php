@@ -41,8 +41,8 @@ class Product extends \yii\db\ActiveRecord
             [['product_code', 'count', 'size','category_id'], 'integer'],
             [['description'], 'string'],
             [['name', 'brand'], 'string', 'max' => 255],
-            [['attachment'], 'file',
-                'skipOnEmpty' => false,
+            [['attachment'],
+                'file',
                 'maxFiles'    => 9,
                 'extensions'  => 'png, jpg, jpeg, mp4',
                 'maxSize'     => 1024 * 1024 * 20,
@@ -75,4 +75,5 @@ class Product extends \yii\db\ActiveRecord
     {
         return $this->hasMany(ProductAttachment::className(), ['product_id' => 'id']);
     }
+
 }
