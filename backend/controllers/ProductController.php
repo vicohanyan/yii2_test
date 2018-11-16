@@ -100,10 +100,9 @@ class ProductController extends Controller
                 if($check){
                     return $this->redirect(['view', 'id' => $model->id]);
                 }else{
-                    throw new NotFoundHttpException('File Not Uploaded');
+                    throw new NotFoundHttpException('File Not Uploaded Something Went Wrong');
                 }
         }
-
         return $this->render('create', [
             'model' => $model,
         ]);
@@ -119,16 +118,56 @@ class ProductController extends Controller
     public function actionUpdate($id)
     {
         $model = $this->findModel($id);
-
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
+        $modelAttachment = ProductAttachment::find()->where(['product_id'=>$id])->all();
+        $oldAttachment = $modelAttachment;
+        $oldProductCode = $model->product_code;
+        if ($model->load(Yii::$app->request->post())) {
+            var_dump($model->product_code);
+            var_dump($oldProductCode);
+//            die;
+            if(intval($model->product_code) !== intval($oldProductCode)){
+                var_dump(Yii::$app->request->post('Product'));
+                $model = new Product();
+                $model->load(Yii::$app->request->post('Product'));
+            }
+            $model->save();
+            $path = 'uploads/';
+            $model->attachment = UploadedFile::getInstances($model, 'attachment');
+            $check = true;
+            if(!empty($model->attachment)) {
+                foreach ($oldAttachment as $file){
+                    @unlink($path. $file->attachment);
+                    $file->delete();
+                }
+                foreach ($model->attachment as $file) {
+                    $file->saveAs($path . $file->baseName . '.' . $file->extension);
+                    $originFile = $path . $file->baseName . '.' . $file->extension;
+                    if($file->extension == 'jpg' || $file->extension == 'jpeg' || $file->extension == 'png') {
+                        Image::thumbnail($originFile, 400, 400)->save($originFile, ['quality' => 100]);
+                    }else{
+                        $file->saveAs($path . $file->baseName . '.' . $file->extension);
+                    }
+                    $modelAttachment = new ProductAttachment();
+                    $modelAttachment->product_id = $model->id;
+                    $modelAttachment->attachment = $file->baseName . '.' . $file->extension;
+                    if($modelAttachment->validate() && $modelAttachment->save()){
+                        $check = true;
+                    }else{
+                        $check = false;
+                    }
+                }
+            }
+            if($check){
+                return $this->redirect(['view', 'id' => $model->id]);
+            }else{
+                throw new NotFoundHttpException('File Not Uploaded Something Went Wrong');
+            }
         }
-
         return $this->render('update', [
-            'model' => $model,
+            'model'           => $model,
+            'modelAttachment' => $modelAttachment,
         ]);
     }
-
     /**
      * Deletes an existing Product model.
      * If deletion is successful, the browser will be redirected to the 'index' page.
@@ -139,6 +178,13 @@ class ProductController extends Controller
     public function actionDelete($id)
     {
         $model = $this->findModel($id);
+        $modelAttachment = ProductAttachment::find()->where(['product_id'=>$id])->all();
+        foreach ($modelAttachment as $file){
+            $path = 'uploads/';
+            @unlink($path. $file->attachment);
+            $file->delete();
+        }
+        $model->delete();
 
         return $this->redirect(['index']);
     }

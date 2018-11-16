@@ -8,6 +8,7 @@ use app\models\Category;
 /* @var $this yii\web\View */
 /* @var $model app\models\Product */
 /* @var $form yii\widgets\ActiveForm */
+
 ?>
 
 <div class="product-form">
@@ -32,43 +33,37 @@ use app\models\Category;
         <?= $form->field($model, 'attachment[]')->fileInput(['multiple' => true]) ?>
 
         <div>
-            <h2>Uploaded Photos and Videos</h2>
-<!--            --><?php //foreach($model->attachment as $file):?>
-<!--                <div class="item">-->
-<!--<!--                    -->--><?php ////if ($file) {
-////                        $file = realpath(Yii::app()->basePath . '/../tmp_path/') . '/' . $file;
-////                        $img = null;
-////                        if (file_exists($file)) {
-////                            $img = Yii::app()->baseUrl . '/tmp_path/' . $lm->image;
-////                        }
-////                        else {
-////                            $img = Yii::app()->baseUrl . '/images/slider/' . $lm->image;
-////                        }
-////                        $ext = explode('.',$lm->image);
-////                        if ($ext[1] == 'jpg' || $ext[1] == 'jpeg' || $ext[1] == 'png' || $ext[1] == 'gif') {
-////                            echo '<img src="'.$img .'" id="file-img_'.$lm->lang_id.'">
-////                                  <video controls width="100%" height="100%" autoplay="autoplay" style="display:none" id="file-video_'.$lm->lang_id.'" muted>
-////                                      <source src="'.$img.'" type="video/mp4">
-////                                      <source src="'.$img.'" type="video/ogg">
-////                                      Your browser does not support the video tag.
-////                                  </video>
-////                                  ';
-////                        } elseif($ext[1] == 'mp4' || $ext[1] == 'ogg') {
-////                            echo '
-////                                 <img src="'.$img .'" id="file-img_'.$lm->lang_id.'" style="display:none">
-////                                 <video controls width="100%" height="100%" autoplay="autoplay" id="file-video_'.$lm->lang_id.'" muted>
-////                                     <source src="'.$img.'" type="video/mp4">
-////                                     <source src="'.$img.'" type="video/ogg">
-////                                     Your browser does not support the video tag.
-////                                 </video>
-////                                ';
-////                        }else{
-////                            echo Yii::app()->Translator->translate('File format not supported.');
-////                        }
-////                    }?>
-<!---->
-<!--                </div>-->
-<!--            --><?php //endforeach;?>
+            <h3 >Uploaded Photos and Videos</h3>
+            <?php if(!empty($modelAttachment)):?>
+                <?php foreach($modelAttachment as $file):?>
+                    <div class="item col-md-4">
+                        <?php if ($file) {
+                            $img = Yii::$app->getUrlManager()->getBaseUrl() . '/uploads/' . '/' . $file->attachment;
+                            $ext = explode('.',$file->attachment);
+                            if ($ext[1] == 'jpg' || $ext[1] == 'jpeg' || $ext[1] == 'png' || $ext[1] == 'gif') {
+                                echo '<img src="'.$img .'" style="width: 100%;height: auto;">
+                                      <video controls width="100%" height="100%" autoplay="autoplay" style="display:none"  muted>
+                                          <source src="'.$img.'" type="video/mp4">
+                                          <source src="'.$img.'" type="video/ogg">
+                                          Your browser does not support the video tag.
+                                      </video>
+                                      ';
+                            } elseif($ext[1] == 'mp4' || $ext[1] == 'ogg') {
+                                echo '
+                                     <img src="'.$img .'"  style="display:none">
+                                     <video controls width="100%" height="100%" autoplay="autoplay"" muted>
+                                         <source src="'.$img.'" type="video/mp4">
+                                         <source src="'.$img.'" type="video/ogg">
+                                         Your browser does not support the video tag.
+                                     </video>
+                                    ';
+                            }else{
+                                echo Yii::app()->Translator->translate('File format not supported.');
+                            }
+                        }?>
+                    </div>
+                <?php endforeach;?>
+            <?php endif;?>
         </div>
     </div>
 </div>

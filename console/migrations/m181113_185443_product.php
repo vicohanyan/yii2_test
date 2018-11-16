@@ -16,12 +16,12 @@ class m181113_185443_product extends Migration
 
         $this->createTable('{{%product}}', [
             'id'           => $this->primaryKey(),
-            'product_code' => $this->integer()->defaultValue(0),
-            'name'         => $this->string(),
+            'product_code' => $this->integer(150)->defaultValue(0),
+            'name'         => $this->string(255),
             'description'  => $this->text(),
-            'count'        => $this->tinyInteger(),
-            'brand'        => $this->string(),
-            'size'         => $this->integer(),
+            'count'        => $this->integer(150),
+            'brand'        => $this->string(250),
+            'size'         => $this->integer(150),
             'product_id'   => $this->integer(),
         ], $tableOptions);
     }
